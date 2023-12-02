@@ -4,13 +4,13 @@ const router = express.Router()
 const { db, genid } = require("../db/DbUtils")
 
 router.get("/test", async (req, res) => {
-    db.all("select * from `admin`", [], (err, rows) => {
-        console.log(rows)
-    })
+    // db.all("select * from `admin`", [], (err, rows) => {
+    //     console.log(rows)
+    // })
 
-    db.async.all("select * from `admin`", []).then((res) => {
-        console.log(res)
-    })
+    // db.async.all("select * from `admin`", []).then((res) => {
+    //     console.log(res)
+    // })
 
     let out = await AbortController.async.all("select * from `admin`", [])
 
