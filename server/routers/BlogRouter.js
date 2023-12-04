@@ -2,6 +2,76 @@ const express = require("express")
 const router = express.Router()
 const { db, genid } = require("../db/DbUtils")
 
+// 查询博客
+router.get("/search", async (req, res) => {
+    /**
+     * keyword 关键字
+     * categoryId 分类编号
+     * 
+     * 分页：
+     * page 页码
+     * pageSize 分页大小
+     */
+    let { keyword, categoryId, page, pageSize } = req.query
+
+    page = page == null ? 1 : page
+    pageSize = pageSize == null ? 10 : pageSize
+    categoryId = categoryId == null ? 0 : categoryId
+    keyword = keyword == null ? "" : keyword
+
+    let params = []
+    let whereSqls = []
+    if (categoryId != 0) {
+        whereSqls.push(" `category_id` = ? ")
+        params.push(categoryId)
+    }
+
+    if (keyword != "") {
+        whereSqls.push(" (`title` LIKE ? OR `content` LIKE ?) ")
+        params.push("%" + keyword + "%")
+        params.push("%" + keyword + "%")
+    }
+
+    let whereSqlStr = ""
+    if (whereSqls.length > 0) {
+        whereSqlStr = " WHERE " + whereSqls.join(" AND ")
+    }
+
+    // 查询分页数据
+    let searchSql = " SELECT * FROM `blog` " + whereSqlStr + " ORDER BY `create_time` DESC LIMIT ?,? "
+    let searchSqlParams = params.concat([(page - 1) * pageSize, pageSize])
+
+    // 查询数据总数
+    let searchCountSql = " SELECT count(*) AS `count` FROM `blog` " + whereSqlStr
+    let searchCountParams = params
+
+    // 分页数据
+    let searchResult = await db.async.all(searchSql, searchSqlParams)
+    let countResult = await db.async.all(searchCountSql, searchCountParams)
+
+    console.log(searchSql, countResult)
+
+    if (searchResult.err == null && countResult.err == null) {
+        res.send({
+            code: 200,
+            msg: "查询成功",
+            data: {
+                keyword, 
+                categoryId, 
+                page, 
+                pageSize, 
+                rows: searchResult.rows,
+                count: countResult.rows[0].count
+            }
+        })
+    } else {
+        res.send({
+            code: 500,
+            msg: "查询失败"
+        })
+    }
+})
+
 // 删除博客 /blog/delete?id=xxx
 router.delete("/delete", async (req, res) => {
     let id = req.query.id
