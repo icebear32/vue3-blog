@@ -7,6 +7,7 @@
 const express = require("express")
 const multer = require("multer")
 const path = require("path")
+const { db } = require("./db/DbUtils")
 const app = express()
 const port = 8080
 
@@ -29,6 +30,30 @@ const update = multer({
 app.use(update.any())
 // 指定静态资源路径
 app.use(express.static(path.join(__dirname, "public")))
+
+// 每个接口调用前验证 token 信息，当访问路径中含有 /_token 时，就会验证用户 token 信息
+const ADMIN_TOKEN_PATH = "/_token"
+app.all("*", async (req, res, next) => {
+    if (req.path.indexOf(ADMIN_TOKEN_PATH) > -1) {
+        // ===== token 验证部分 =====
+        let { token } = req.headers
+        console.log(token)
+
+        let admin_token_sql = "SELECT * FROM `admin` WHERE `token` = ?"
+        let adminResult = await db.async.all(admin_token_sql, [token])
+        if (adminResult.err != null || adminResult.rows.length == 0) {
+            res.send({
+                code: 403,
+                msg: "请先登录"
+            })
+            return
+        } else {
+            next()
+        }
+    } else {
+        next()
+    }
+})
 
 app.use("/test", require("./routers/TestRouter"))
 app.use("/admin", require("./routers/AdminRouter"))
