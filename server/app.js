@@ -6,6 +6,7 @@
 
 const express = require("express")
 const multer = require("multer")
+const path = require("path")
 const app = express()
 const port = 8080
 
@@ -26,11 +27,14 @@ const update = multer({
     dest: "./public/upload/temp"
 })
 app.use(update.any())
+// 指定静态资源路径
+app.use(express.static(path.join(__dirname, "public")))
 
 app.use("/test", require("./routers/TestRouter"))
 app.use("/admin", require("./routers/AdminRouter"))
 app.use("/category", require("./routers/categoryRouter"))
 app.use("/blog", require("./routers/BlogRouter"))
+app.use("/upload", require("./routers/UploadRouter"))
 
 app.get("/", (req, res) => {
     res.send("hello world")
