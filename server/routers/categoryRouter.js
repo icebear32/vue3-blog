@@ -24,6 +24,20 @@ router.get("/list", async (req, res) => {
 
 // 删除接口 /category/delete?id=xxx
 router.delete("/delete", async (req, res) => {
+    // ===== token 验证部分 =====
+    let { token } = req.headers
+    console.log(token)
+
+    let admin_token_sql = "SELECT * FROM `admin` WHERE `token` = ?"
+    let adminResult = await db.async.all(admin_token_sql, [token])
+    if (adminResult.err != null || adminResult.rows.length == 0) {
+        res.send({
+            code: 403,
+            msg: "请先登录"
+        })
+        return
+    }
+
     let id = req.query.id
     let delete_sql = "DELETE FROM `category` WHERE `id` = ?"
     let { err, rows } = await db.async.run(delete_sql, [id])
@@ -43,6 +57,21 @@ router.delete("/delete", async (req, res) => {
 
 // 修改接口
 router.put("/update", async (req, res) => {
+    // ===== token 验证部分 =====
+    let { token } = req.headers
+    console.log(token)
+
+    let admin_token_sql = "SELECT * FROM `admin` WHERE `token` = ?"
+    let adminResult = await db.async.all(admin_token_sql, [token])
+    if (adminResult.err != null || adminResult.rows.length == 0) {
+        res.send({
+            code: 403,
+            msg: "请先登录"
+        })
+        return
+    }
+
+    // ===== 修改部分 =====
     let { id, name } = req.body
     let update_sql = "UPDATE `category` SET `name` = ? WHERE `id` = ?"
     let { err, rows } = await db.async.run(update_sql, [name, id])
@@ -62,6 +91,20 @@ router.put("/update", async (req, res) => {
 
 // 添加接口
 router.post("/add", async (req, res) => {
+    // ===== token 验证部分 =====
+    let { token } = req.headers
+    console.log(token)
+
+    let admin_token_sql = "SELECT * FROM `admin` WHERE `token` = ?"
+    let adminResult = await db.async.all(admin_token_sql, [token])
+    if (adminResult.err != null || adminResult.rows.length == 0) {
+        res.send({
+            code: 403,
+            msg: "请先登录"
+        })
+        return
+    }
+
     let { name } = req.body
     let insert_sql = "INSERT INTO `category` (`id`,`name`) VALUES (?,?)"
     let { err, rows } = await db.async.run(insert_sql, [genid.NextId(), name])
