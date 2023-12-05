@@ -16,10 +16,12 @@ import axios from 'axios'
  * wangeditor：npm install @wangeditor/editor-for-vue@next --save
  */
 
-// 设置服务端接口
-axios.defaults.baseURL = "http://localhost:8080"
+axios.defaults.baseURL = "http://localhost:8080" // 设置服务端接口
 
 const app = createApp(App)
+
+app.provide("axios", axios) // 将 axios 放入全局使用
+
 app.use(naive) // 全局安装 naive-ui
 app.use(createPinia())
 app.use(router)
