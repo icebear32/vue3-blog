@@ -1,6 +1,10 @@
 <script setup>
 import { ref, reactive, inject } from 'vue'
 import { AdminStore } from '../stores/UserStore'
+import { useRouter, useRoute } from 'vue-router'
+
+const router = useRouter()
+const route = useRoute()
 
 const message = inject("message") // const message = useMessage() // 实例化
 const axios = inject("axios") // 注入 axios
@@ -19,9 +23,9 @@ let rules = {
 }
 
 const admin = reactive({
-    account: "",
-    password: "",
-    rember: false
+    account: localStorage.getItem("account") || "",
+    password: localStorage.getItem("password") || "",
+    rember: localStorage.getItem("rember") == 1 || false
 })
 
 const login = async () => {
@@ -33,6 +37,13 @@ const login = async () => {
         adminStore.token = result.data.data.token
         adminStore.account = result.data.data.account
         adminStore.id = result.data.data.id
+
+        if (admin.rember) {
+            localStorage.setItem("account", admin.account)
+            localStorage.setItem("password", admin.password)
+            localStorage.setItem("rember", admin.rember ? 1 : 0)
+        }
+        router.push("/dashboard") // 路由跳转
         message.info("登录成功")
     } else {
         message.error("登录失败")
