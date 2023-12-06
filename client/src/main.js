@@ -2,6 +2,7 @@ import { createApp } from 'vue'
 import './style.css'
 import App from './App.vue'
 import naive from 'naive-ui'
+import { createDiscreteApi } from 'naive-ui'
 import { router } from './common/router'
 import { createPinia } from 'pinia'
 import axios from 'axios'
@@ -18,9 +19,16 @@ import axios from 'axios'
 
 axios.defaults.baseURL = "http://localhost:8080" // 设置服务端接口
 
+// 信息 Message；通知 Notification；对话框 Dialog
+const { message, notification, dialog } = createDiscreteApi(['message', 'dialog', 'notification'])
+
 const app = createApp(App)
 
-app.provide("axios", axios) // 将 axios 放入全局使用
+// 放入全局使用
+app.provide("axios", axios)
+app.provide("message", message)
+app.provide("notification", notification)
+app.provide("dialog", dialog)
 
 app.use(naive) // 全局安装 naive-ui
 app.use(createPinia())

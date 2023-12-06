@@ -1,9 +1,8 @@
 <script setup>
 import { ref, reactive, inject } from 'vue'
 import { AdminStore } from '../stores/UserStore'
-import { useMessage } from 'naive-ui'
 
-const message = useMessage() // 实例化
+const message = inject("message") // const message = useMessage() // 实例化
 const axios = inject("axios") // 注入 axios
 const adminStore = AdminStore() // 实例化
 
