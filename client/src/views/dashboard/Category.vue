@@ -7,12 +7,20 @@ const router = useRouter()
 const route = useRoute()
 
 const message = inject("message") // const message = useMessage() // 实例化
+const dialog = inject("dialog") 
 const axios = inject("axios") // 注入 axios
 const adminStore = AdminStore() // 实例化
 
 const showAddModel = ref(false)
+const showUpdateModel = ref(false)
+
 const categoryList = ref([])
 const addCategory = reactive({
+    name: ""
+})
+
+const updateCategory = reactive({
+    id: 0,
     name: ""
 })
 
@@ -36,6 +44,47 @@ const add = async () => {
         message.error(res.data.msg)
     }
     showAddModel.value = false
+}
+
+// 修改时打开模态框
+const toUpdate = async (category) => {
+    showUpdateModel.value = true
+    updateCategory.id = category.id
+    updateCategory.name = category.name
+}
+
+// 修改分类
+const update = async () => {
+    let res = await axios.post("/category/_token/update", { id: updateCategory.id, name: updateCategory.name })
+    if (res.data.code == 200) {
+        loadDatas()
+        message.info(res.data.msg)
+    } else {
+        message.error(res.data.msg)
+    }
+    showUpdateModel.value = false
+}
+
+// 删除分类
+const deleteCategory = async (category) => {
+    dialog.warning({
+        title: '警告',
+        content: '是否要删除',
+        positiveText: '确定',
+        negativeText: '不确定',
+        onPositiveClick: async () => {
+            let res = await axios.delete(`/category/_token/delete?id=${category.id}`)
+            if (res.data.code == 200) {
+                loadDatas()
+                message.info(res.data.msg)
+            } else {
+                message.error(res.data.msg)
+            }
+        },
+        onNegativeClick: () => {
+            message.error('不确定')
+        }
+    })
 }
 </script>
 
