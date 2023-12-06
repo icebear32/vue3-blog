@@ -1,7 +1,11 @@
 <script setup>
-import { ref, reactive,inject } from 'vue'
+import { ref, reactive, inject } from 'vue'
+import { AdminStore } from '../stores/UserStore'
+import { useMessage } from 'naive-ui'
 
+const message = useMessage() // 实例化
 const axios = inject("axios") // 注入 axios
+const adminStore = AdminStore() // 实例化
 
 /**验证表单规则 */
 let rules = {
@@ -22,11 +26,18 @@ const admin = reactive({
 })
 
 const login = async () => {
-    let result = await axios.post("/admin/login",{
+    let result = await axios.post("/admin/login", {
         account: admin.account,
         password: admin.password
     })
-    console.log(result)
+    if (result.data.code == 200) {
+        adminStore.token = result.data.data.token
+        adminStore.account = result.data.data.account
+        adminStore.id = result.data.data.id
+        message.info("登录成功")
+    } else {
+        message.error("登录失败")
+    }
 }
 </script>
 

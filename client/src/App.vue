@@ -3,9 +3,9 @@ import { RouterView } from 'vue-router'
 </script>
 
 <template>
-  <RouterView />
+  <n-message-provider>
+    <RouterView />
+  </n-message-provider>
 </template>
 
-<style scoped>
-
-</style>
+<style scoped></style>
