@@ -13,13 +13,6 @@ axios.defaults.baseURL = "http://localhost:8080" // 设置服务端接口
 // 信息 Message；通知 Notification；对话框 Dialog
 const { message, notification, dialog } = createDiscreteApi(['message', 'dialog', 'notification'])
 
-const adminStore = AdminStore() // 实例化
-// 拦截器 - 每次做请求时，都会执行，让每次的请求都带有用户的 token
-axios.interceptors.request.use((config) => {
-    config.headers.token = adminStore.token
-    return config
-})
-
 const app = createApp(App)
 
 // 放入全局使用
@@ -30,5 +23,13 @@ app.provide("dialog", dialog)
 
 app.use(naive) // 全局安装 naive-ui
 app.use(createPinia())
+
+const adminStore = AdminStore() // 实例化
+// 拦截器 - 每次做请求时，都会执行，让每次的请求都带有用户的 token
+axios.interceptors.request.use((config) => {
+    config.headers.token = adminStore.token
+    return config
+})
+
 app.use(router)
 app.mount('#app')
