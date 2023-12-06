@@ -28,7 +28,7 @@ const loadDatas = async () => {
 
 // 添加分类
 const add = async () => {
-    let res = await axios.post("/category/_token/add", { name: addCategory.name }, { headers: { token: adminStore.token } })
+    let res = await axios.post("/category/_token/add", { name: addCategory.name })
     if (res.data.code == 200) {
         loadDatas()
         message.info(res.data.msg)
