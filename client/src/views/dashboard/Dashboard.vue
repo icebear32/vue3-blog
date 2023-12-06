@@ -1,14 +1,78 @@
 <script setup>
 import { AdminStore } from '../../stores/UserStore'
+import { ref, reactive, inject } from 'vue'
+import { useRouter, useRoute, RouterView } from 'vue-router'
 
-const adminStore = AdminStore()
+const router = useRouter()
+const route = useRoute()
+
+const message = inject("message") // const message = useMessage() // 实例化
+const axios = inject("axios") // 注入 axios
+
+const adminStore = AdminStore() // 实例化
+
+let menus = [
+    { name: "文章管理", href: "/dashboard/article" },
+    { name: "分类管理", href: "/dashboard/category" },
+    { name: "退出", href: "logout" },
+]
+
+const toPage = (menu) => {
+    if (menu.href == 'logout') {
+        router.push('/login')
+    } else {
+        router.push(menu.href)
+    }
+}
 </script>
 
 <template>
-    <div>
-        dashboard
-        {{ adminStore }}
+    <div class="main-panel">
+        <div class="menus">
+            <div v-for="(menu, index) in menus" @click="toPage(menu)">
+                {{ menu.name }}
+            </div>
+        </div>
+        <div style="padding: 20px;width: 100%;">
+            <RouterView />
+        </div>
     </div>
+    <div class="title">后台管理系统</div>
 </template>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+.main-panel {
+    display: flex;
+    color: #64676a;
+    max-width: 1500px;
+    margin: 0 auto;
+}
+
+.menus {
+    padding: 20px 0;
+    box-sizing: border-box;
+    line-height: 55px;
+    text-align: center;
+    width: 180px;
+    height: 95vh;
+    border-right: 1px solid #dadada;
+
+    div {
+        cursor: pointer;
+
+        &:hover {
+            color: #fd760e;
+        }
+    }
+}
+
+.title {
+    font-size: 65px;
+    font-weight: bold;
+    text-align: right;
+    position: fixed;
+    color: rgba(0, 0, 0, 20%);
+    right: calc((100vw - 1500px) / 2);
+    bottom: 20px;
+}
+</style>
