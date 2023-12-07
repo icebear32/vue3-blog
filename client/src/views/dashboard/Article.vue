@@ -39,7 +39,6 @@ const addArticle = reactive({
             xx
         </n-tab-pane>
     </n-tabs>
-    {{ addArticle.content }}
 </template>
 
 <style lang="scss" scoped></style>

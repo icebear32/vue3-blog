@@ -1,12 +1,29 @@
 <script setup>
 import '@wangeditor/editor/dist/css/style.css'
-import { ref, onBeforeUnmount, shallowRef } from 'vue'
+import { ref, inject, onBeforeUnmount, shallowRef } from 'vue'
 import { Editor, Toolbar } from '@wangeditor/editor-for-vue'
 
 // 编辑器实例，必须用 shallowRef，重要
 const editorRef = shallowRef()
 const toolbarConfig = {}
 const editorConfig = { placeholder: '请输入内容...' }
+
+// 上传图片的服务器地址配置
+const server_url = inject("server_url")
+editorConfig.MENU_CONF = {}
+editorConfig.MENU_CONF['uploadImage'] = {
+    base64LimitSize: 10 * 1024, // 小于该值就插入 base64 格式（而不上传），默认为 0 
+    server: server_url + '/upload/rich_editor_upload'
+}
+editorConfig.MENU_CONF['insertImage'] = {
+    parseImageSrc: (src) => {
+        if (src.indexOf("http" !== 0)) {
+            return `${server_url}${src}`
+        }
+        return src
+    }
+}
+
 const mode = ref("default")
 const valueHtml = ref("")
 

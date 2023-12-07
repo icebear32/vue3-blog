@@ -20,6 +20,7 @@ app.provide("axios", axios)
 app.provide("message", message)
 app.provide("notification", notification)
 app.provide("dialog", dialog)
+app.provide("server_url", axios.defaults.baseURL)
 
 app.use(naive) // 全局安装 naive-ui
 app.use(createPinia())
