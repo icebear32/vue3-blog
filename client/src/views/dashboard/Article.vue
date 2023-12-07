@@ -18,6 +18,33 @@ const addArticle = reactive({
     title: "",
     content: ""
 })
+
+const categoryOptions = ref([])
+onMounted(() => {
+    loadCategorys()
+})
+const loadCategorys = async () => {
+    let res = await axios.get("/category/list")
+    categoryOptions.value = res.data.rows.map((item) => {
+        return {
+            label: item.name,
+            value: item.id
+        }
+    })
+    console.log(categoryOptions.value)
+}
+
+const add = async () => {
+    let res = await axios.post("/blog/_token/add", addArticle)
+    if (res.data.code == 200) {
+        message.info(res.data.msg)
+        addArticle.categoryId = 0
+        addArticle.title = ""
+        addArticle.content = ""
+    } else {
+        message.error(res.data.msg)
+    }
+}
 </script>
 
 <template>
@@ -30,8 +57,14 @@ const addArticle = reactive({
                 <n-form-item label="标题">
                     <n-input v-model:value="addArticle.title" placeholder="请输入标题" />
                 </n-form-item>
+                <n-form-item label="分类">
+                    <n-select v-model:value="addArticle.categoryId" :options="categoryOptions" />
+                </n-form-item>
                 <n-form-item label="内容">
                     <RichTextEditor v-model="addArticle.content" />
+                </n-form-item>
+                <n-form-item label="">
+                    <n-button @click="add">提交</n-button>
                 </n-form-item>
             </n-form>
         </n-tab-pane>

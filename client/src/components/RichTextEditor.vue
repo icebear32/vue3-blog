@@ -5,7 +5,11 @@ import { Editor, Toolbar } from '@wangeditor/editor-for-vue'
 
 // 编辑器实例，必须用 shallowRef，重要
 const editorRef = shallowRef()
-const toolbarConfig = {}
+
+// 设置工具栏
+const toolbarConfig = { 
+    excludeKeys: ["uploadVideo"] // 去除上传视频功能
+}
 const editorConfig = { placeholder: '请输入内容...' }
 
 // 上传图片的服务器地址配置
@@ -59,7 +63,7 @@ const handleChange = (editor) => {
 <template>
     <div>
         <Toolbar :editor="editorRef" :default-config="toolbarConfig" :mode="mode" style="border-bottom: 1px solid #ccc;" />
-        <Editor :default-config="editorConfig" :mode="mode" v-model="valueHtml" style="height: 400px; overflow-y: hidden;"
+        <Editor :default-config="editorConfig" :mode="mode" v-model="valueHtml" style="height: 280px; overflow-y: hidden;"
             @onCreated="handleCreated" @onChange="handleChange" />
     </div>
 </template>
