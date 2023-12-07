@@ -19,10 +19,25 @@ const addArticle = reactive({
     content: ""
 })
 
+const blogListInfo = ref([])
 const categoryOptions = ref([])
 onMounted(() => {
+    loadBlogs()
     loadCategorys()
 })
+// 显示文章列表
+const loadBlogs = async () => {
+    let res = await axios.get("/blog/search")
+    let temp_rows = res.data.data.rows
+    for (let row of temp_rows) {
+        row.content += "..."
+        let d = new Date(row.create_time)
+        row.create_time = `${d.getFullYear()}年${d.getMonth() + 1}月${d.getDate()}日`
+    }
+    blogListInfo.value = temp_rows
+    console.log(res)
+}
+// 显示分类列表
 const loadCategorys = async () => {
     let res = await axios.get("/category/list")
     categoryOptions.value = res.data.rows.map((item) => {
@@ -49,8 +64,19 @@ const add = async () => {
 
 <template>
     <n-tabs default-value="add" justify-content="start" type="line">
-        <n-tab-pane name="Oasis" tab="Oasis">
-            Oasis
+        <n-tab-pane name="list" tab="文章列表">
+            <div v-for="(blog, index) in blogListInfo" style="margin-bottom: 15px;">
+                <n-card :title="blog.title">
+                    {{ blog.content }}
+                    <template #footer>
+                        <n-space align="center">
+                            <div>发布时间：{{ blog.create_time }}</div>
+                            <n-button>修改</n-button>
+                            <n-button>删除</n-button>
+                        </n-space>
+                    </template>
+                </n-card>
+            </div>
         </n-tab-pane>
         <n-tab-pane name="add" tab="添加文章">
             <n-form :model="addArticle">
