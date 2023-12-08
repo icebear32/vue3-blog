@@ -19,15 +19,24 @@ const addArticle = reactive({
     content: ""
 })
 
-const blogListInfo = ref([])
-const categoryOptions = ref([])
+const blogListInfo = ref([]) // 文章列表
+const categoryOptions = ref([]) // 分类列表
+
+// 分页 列表个数
+const pageInfo = reactive({
+    page: 1,
+    pageSize: 3,
+    pageCount: 0,
+    count: 0
+})
+
 onMounted(() => {
     loadBlogs()
     loadCategorys()
 })
 // 显示文章列表
 const loadBlogs = async () => {
-    let res = await axios.get("/blog/search")
+    let res = await axios.get(`/blog/search?page=${pageInfo.page}&pageSize=${pageInfo.pageSize}`)
     let temp_rows = res.data.data.rows
     for (let row of temp_rows) {
         row.content += "..."
@@ -35,6 +44,10 @@ const loadBlogs = async () => {
         row.create_time = `${d.getFullYear()}年${d.getMonth() + 1}月${d.getDate()}日`
     }
     blogListInfo.value = temp_rows
+
+    pageInfo.count = res.data.data.count // 列表总条数
+    pageInfo.pageCount = parseInt(pageInfo.count / pageInfo.pageSize) + (pageInfo.count % pageInfo.pageSize > 0 ? 1 : 0) // 总页数
+
     console.log(res)
 }
 // 显示分类列表
@@ -60,10 +73,15 @@ const add = async () => {
         message.error(res.data.msg)
     }
 }
+
+const toPage = async (pageNum) => {
+    pageInfo.page = pageNum
+    loadBlogs()
+}
 </script>
 
 <template>
-    <n-tabs default-value="add" justify-content="start" type="line">
+    <n-tabs default-value="list" justify-content="start" type="line">
         <n-tab-pane name="list" tab="文章列表">
             <div v-for="(blog, index) in blogListInfo" style="margin-bottom: 15px;">
                 <n-card :title="blog.title">
@@ -77,6 +95,13 @@ const add = async () => {
                     </template>
                 </n-card>
             </div>
+            <n-space>
+                <div @click="toPage(pageNum)" v-for="pageNum in pageInfo.pageCount">
+                    <div :style="'color:' + (pageNum == pageInfo.page ? 'blue' : '')">
+                        {{ pageNum }}
+                    </div>
+                </div>
+            </n-space>
         </n-tab-pane>
         <n-tab-pane name="add" tab="添加文章">
             <n-form :model="addArticle">
@@ -100,4 +125,8 @@ const add = async () => {
     </n-tabs>
 </template>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+.tabPane {
+    position: relative;
+}
+</style>
