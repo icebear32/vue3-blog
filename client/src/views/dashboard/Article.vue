@@ -13,7 +13,16 @@ const axios = inject("axios") // 注入 axios
 
 const adminStore = AdminStore() // 实例化
 
+// 要添加的数据
 const addArticle = reactive({
+    categoryId: 0,
+    title: "",
+    content: ""
+})
+
+// 要修改的数据
+const updateArticle = reactive({
+    id: 0,
     categoryId: 0,
     title: "",
     content: ""
@@ -21,6 +30,7 @@ const addArticle = reactive({
 
 const blogListInfo = ref([]) // 文章列表
 const categoryOptions = ref([]) // 分类列表
+const tableValue = ref("list")
 
 // 分页 列表个数
 const pageInfo = reactive({
@@ -62,6 +72,7 @@ const loadCategorys = async () => {
     console.log(categoryOptions.value)
 }
 
+// 添加文章
 const add = async () => {
     let res = await axios.post("/blog/_token/add", addArticle)
     if (res.data.code == 200) {
@@ -74,14 +85,37 @@ const add = async () => {
     }
 }
 
+// 转至另一页
 const toPage = async (pageNum) => {
     pageInfo.page = pageNum
     loadBlogs()
 }
+
+// 转至修改页面
+const toUpdate = async (blog) => {
+    tableValue.value = "update"
+    let res = await axios.get("/blog/detail?id=" + blog.id)
+    // console.log(res)
+    updateArticle.id = blog.id
+    updateArticle.title = res.data.rows[0].title
+    updateArticle.content = res.data.rows[0].content
+    updateArticle.categoryId = res.data.rows[0].category_id
+}
+
+const update = async () => {
+    let res = await axios.put("/blog/_token/update", updateArticle)
+    if (res.data.code == 200) {
+        message.info(res.data.msg)
+        loadBlogs()
+        tableValue.value = "list"
+    } else {
+        message.error(res.data.msg)
+    }
+}
 </script>
 
 <template>
-    <n-tabs default-value="list" justify-content="start" type="line">
+    <n-tabs v-model:value="tableValue" justify-content="start" type="line">
         <n-tab-pane name="list" tab="文章列表">
             <div v-for="(blog, index) in blogListInfo" style="margin-bottom: 15px;">
                 <n-card :title="blog.title">
@@ -89,7 +123,7 @@ const toPage = async (pageNum) => {
                     <template #footer>
                         <n-space align="center">
                             <div>发布时间：{{ blog.create_time }}</div>
-                            <n-button>修改</n-button>
+                            <n-button @click="toUpdate(blog)">修改</n-button>
                             <n-button>删除</n-button>
                         </n-space>
                     </template>
@@ -119,8 +153,21 @@ const toPage = async (pageNum) => {
                 </n-form-item>
             </n-form>
         </n-tab-pane>
-        <n-tab-pane name="xx" tab="xx">
-            xx
+        <n-tab-pane name="update" tab="修改">
+            <n-form :model="updateArticle">
+                <n-form-item label="标题">
+                    <n-input v-model:value="updateArticle.title" placeholder="请输入标题" />
+                </n-form-item>
+                <n-form-item label="分类">
+                    <n-select v-model:value="updateArticle.categoryId" :options="categoryOptions" />
+                </n-form-item>
+                <n-form-item label="内容">
+                    <RichTextEditor v-model="updateArticle.content" />
+                </n-form-item>
+                <n-form-item label="">
+                    <n-button @click="update">提交</n-button>
+                </n-form-item>
+            </n-form>
         </n-tab-pane>
     </n-tabs>
 </template>

@@ -2,6 +2,26 @@ const express = require("express")
 const router = express.Router()
 const { db, genid } = require("../db/DbUtils")
 
+// 获取单个博客文章
+router.get("/detail", async (req, res) => {
+    let { id } = req.query
+    let detail_sql = "SELECT * FROM `blog` WHERE `id` = ? "
+    let { err, rows } = await db.async.all(detail_sql, [id])
+
+    if (err == null) {
+        res.send({
+            code: 200,
+            msg: "获取成功",
+            rows
+        })
+    } else {
+        res.send({
+            code: 500,
+            msg: "获取失败"
+        })
+    }
+})
+
 // 查询博客
 router.get("/search", async (req, res) => {
     /**
@@ -56,10 +76,10 @@ router.get("/search", async (req, res) => {
             code: 200,
             msg: "查询成功",
             data: {
-                keyword, 
-                categoryId, 
-                page, 
-                pageSize, 
+                keyword,
+                categoryId,
+                page,
+                pageSize,
                 rows: searchResult.rows,
                 count: countResult.rows[0].count
             }

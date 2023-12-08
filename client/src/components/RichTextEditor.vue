@@ -1,13 +1,13 @@
 <script setup>
 import '@wangeditor/editor/dist/css/style.css'
-import { ref, inject, onBeforeUnmount, shallowRef } from 'vue'
+import { ref, inject, onBeforeUnmount, shallowRef, onMounted } from 'vue'
 import { Editor, Toolbar } from '@wangeditor/editor-for-vue'
 
 // 编辑器实例，必须用 shallowRef，重要
 const editorRef = shallowRef()
 
 // 设置工具栏
-const toolbarConfig = { 
+const toolbarConfig = {
     excludeKeys: ["uploadVideo"] // 去除上传视频功能
 }
 const editorConfig = { placeholder: '请输入内容...' }
@@ -40,6 +40,15 @@ const props = defineProps({
 
 const emit = defineEmits(["update:model-value"])
 
+// 外部内容 传到 编辑器里
+let initFinished = false
+onMounted(() => {
+    setTimeout(() => {
+        valueHtml.value = props.modelValue
+        initFinished = true
+    }, 10)
+})
+
 // 组件销毁时，及时销毁编辑器，重要
 onBeforeUnmount(() => {
     const editor = editorRef.value
@@ -56,7 +65,9 @@ const handleCreated = (editor) => {
 
 const handleChange = (editor) => {
     // console.log('change', editor.getHtml())
-    emit("update:model-value", valueHtml.value)
+    if (initFinished) {
+        emit("update:model-value", valueHtml.value)
+    }
 }
 </script>
 
