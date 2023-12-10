@@ -102,12 +102,24 @@ const toUpdate = async (blog) => {
     updateArticle.categoryId = res.data.rows[0].category_id
 }
 
+// 修改操作
 const update = async () => {
     let res = await axios.put("/blog/_token/update", updateArticle)
     if (res.data.code == 200) {
         message.info(res.data.msg)
         loadBlogs()
         tableValue.value = "list"
+    } else {
+        message.error(res.data.msg)
+    }
+}
+
+// 删除操作
+const toDelete = async (blog) => {
+    let res = await axios.delete("/blog/_token/delete?id=" + blog.id)
+    if (res.data.code == 200) {
+        message.info(res.data.msg)
+        loadBlogs()
     } else {
         message.error(res.data.msg)
     }
@@ -124,7 +136,7 @@ const update = async () => {
                         <n-space align="center">
                             <div>发布时间：{{ blog.create_time }}</div>
                             <n-button @click="toUpdate(blog)">修改</n-button>
-                            <n-button>删除</n-button>
+                            <n-button @click="toDelete(blog)">删除</n-button>
                         </n-space>
                     </template>
                 </n-card>
