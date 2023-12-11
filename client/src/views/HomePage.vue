@@ -19,7 +19,8 @@ const pageInfo = reactive({
     pageSize: 3,
     pageCount: 0,
     count: 0,
-    keyword: ""
+    keyword: "",
+    categoryId: 0
 })
 
 onMounted(() => {
@@ -32,7 +33,7 @@ const loadBlogs = async (page = 0) => {
     if (page != 0) {
         pageInfo.page = page
     }
-    let res = await axios.get(`/blog/search?keyword=${pageInfo.keyword}&page=${pageInfo.page}&pageSize=${pageInfo.pageSize}`)
+    let res = await axios.get(`/blog/search?keyword=${pageInfo.keyword}&page=${pageInfo.page}&pageSize=${pageInfo.pageSize}&categoryId=${pageInfo.categoryId}`)
     let temp_rows = res.data.data.rows
     for (let row of temp_rows) {
         row.content += "..."
@@ -64,6 +65,11 @@ const loadCategorys = async () => {
     console.log(categoryOptions.value)
 }
 
+const searchCategory = (categoryId) => {
+    pageInfo.categoryId = categoryId
+    loadBlogs()
+}
+
 const homePage = () => {
     router.push("/")
 }
@@ -81,7 +87,8 @@ const toDetail = (blog) => {
         <div class="nav">
             <div @click="homePage">首页</div>
             <div>
-                <n-popselect v-model:value="selectedCategory" :options="categoryOptions" trigger="click">
+                <n-popselect @update:value="searchCategory" v-model:value="selectedCategory" :options="categoryOptions"
+                    trigger="click">
                     <div>分类<span>{{ " " + categoryName }}</span></div>
                 </n-popselect>
             </div>
