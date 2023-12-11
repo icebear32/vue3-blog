@@ -70,6 +70,10 @@ const homePage = () => {
 const dashboard = () => {
     router.push("/login")
 }
+
+const toDetail = (blog) => {
+    router.push({ path: "/detail", query: { id: blog.id } })
+}
 </script>
 
 <template>
@@ -89,8 +93,8 @@ const dashboard = () => {
                 <n-input v-model:value="pageInfo.keyword" :style="{ width: '500px' }" placeholder="请输入关键字" />
                 <n-button type="primary" ghost @click="loadBlogs(0)"> 搜索</n-button>
             </n-space>
-            <div v-for="(blog, index) in blogListInfo" style="margin-bottom: 15px;">
-                <n-card :title="blog.title">
+            <div v-for="(blog, index) in blogListInfo" style="margin-bottom: 15px; cursor: pointer;">
+                <n-card :title="blog.title" @click="toDetail(blog)">
                     {{ blog.content }}
                     <template #footer>
                         <n-space align="center">
